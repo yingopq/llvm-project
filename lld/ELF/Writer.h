@@ -17,15 +17,14 @@ namespace lld::elf {
 class InputFile;
 class OutputSection;
 void copySectionsIntoPartitions();
-template <class ELFT> void createSyntheticSections();
-template <class ELFT> void writeResult();
+template <class ELFT> void writeResult(Ctx &ctx);
 
 // This describes a program header entry.
 // Each contains type, access flags and range of output sections that will be
 // placed in it.
 struct PhdrEntry {
-  PhdrEntry(unsigned type, unsigned flags)
-      : p_align(type == llvm::ELF::PT_LOAD ? config->maxPageSize : 0),
+  PhdrEntry(Ctx &ctx, unsigned type, unsigned flags)
+      : p_align(type == llvm::ELF::PT_LOAD ? ctx.arg.maxPageSize : 0),
         p_type(type), p_flags(flags) {}
   void add(OutputSection *sec);
 
@@ -47,6 +46,7 @@ struct PhdrEntry {
 
 void addReservedSymbols();
 bool includeInSymtab(const Symbol &b);
+unsigned getSectionRank(OutputSection &osec);
 
 template <class ELFT> uint32_t calcMipsEFlags();
 
@@ -57,8 +57,6 @@ bool isMipsN32Abi(const InputFile *f);
 bool isMicroMips();
 bool isMipsR6();
 
-bool hasMemtag();
-bool canHaveMemtagGlobals();
 } // namespace lld::elf
 
 #endif

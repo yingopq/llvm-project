@@ -627,7 +627,7 @@ bool MipsInstrInfo::SafeInLoadDelaySlot(const MachineInstr &MIInSlot,
     return false;
 
   return !llvm::any_of(LoadMI.defs(), [&](const MachineOperand &Op) {
-    return Op.isReg() && MIInSlot.readsRegister(Op.getReg());
+    return Op.isReg() && MIInSlot.readsRegister(Op.getReg(), /*TRI=*/nullptr);
   });
 }
 
@@ -714,7 +714,7 @@ MipsInstrInfo::genInstrWithNewOpc(unsigned NewOpc,
   bool BranchWithZeroOperand = false;
   if (I->isBranch() && !I->isPseudo()) {
     auto TRI = I->getParent()->getParent()->getSubtarget().getRegisterInfo();
-    ZeroOperandPosition = I->findRegisterUseOperandIdx(Mips::ZERO, false, TRI);
+    ZeroOperandPosition = I->findRegisterUseOperandIdx(Mips::ZERO, TRI, false);
     BranchWithZeroOperand = ZeroOperandPosition != -1;
   }
 
